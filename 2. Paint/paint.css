@@ -1,0 +1,15 @@
+.menu { grid-area: menu; }
+.main { grid-area: main; }
+.grid-container {
+    display: grid;
+    grid-template-areas:'menu main main main main'
+}
+
+#widthSlider:hover {
+    opacity: 1;
+}
+
+.line{
+    size: 3px;
+    color: black;
+}

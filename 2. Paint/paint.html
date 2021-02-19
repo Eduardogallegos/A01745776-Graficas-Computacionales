@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong</title>
+    <script src="paint.js"></script>
+    <link rel="stylesheet" href="paint.css">
+</head>
+<body onload="main();"> 
+    <hr id="line">
+    <div class="grid-container">
+        <div class="menu">
+            <input id="widthSlider" type=range min=0 max=10 value=50>
+            <p>Line width: <span id="widthText"></span></p>
+            <input type="button" value="Clear canvas" id="clearBtn">
+            <div>
+                <input type="button" value="" style="background-color: blue; border-color: blue;">
+                <input type="button" value="" style="background-color: red; border-color: red;">
+                <input type="button" value="" style="background-color: green; border-color: green;">
+                <input type="button" value="" style="background-color: orange; border-color: orange;">
+                <br>
+                <input type="button" value="" style="background-color: purple; border-color: purple;">
+                <input type="button" value="" style="background-color: black; border-color: black;">
+                <input type="button" value="" style="background-color: pink; border-color: pink;">
+                <input type="button" value="" style="background-color: grey; border-color: grey;">
+            </div>
+        </div>
+        <div class="main">
+            <canvas id="paintCanvas" width="1200" height="600" style="border: 5px solid black;"></canvas>
+        </div> 
+    </div>
+</body>
+</html>
