@@ -1,11 +1,12 @@
 class ball {
-  constructor(x, y, radius, dirX, dirY) {
+  constructor(x, y, radius, dirX, dirY, xSpeed, ySpeed) {
     this.x = x;
     this.y = y;
     this.radius = radius;
     this.dirX = dirX;
     this.dirY = dirY;
-    // this.possibleSpeeds = [1,2,3,4,5]
+    this.xSpeed = xSpeed;
+    this.ySpeed = ySpeed;
   }
 
   draw(context) {
@@ -24,8 +25,8 @@ class ball {
   }
 
   move() {
-    this.x += 3 * this.dirX;
-    this.y += 1 * this.dirY;
+    this.x += this.xSpeed * this.dirX;
+    this.y += this.ySpeed * this.dirY;
   }
 
   keepBallInBounds(canvas) {
@@ -117,19 +118,13 @@ class bar {
     this.y += 3;
   }
 
-  checkOutOfBounds() {
-    return false;
-  }
-
   update(keysDown, side) {
-    if (!this.checkOutOfBounds()) {
-      if (side == "left") {
-        if (keysDown["q"]) this.moveUp();
-        else if (keysDown["a"]) this.moveDown();
-      } else {
-        if (keysDown["p"]) this.moveUp();
-        else if (keysDown["l"]) this.moveDown();
-      }
+    if (side == "left") {
+      if (keysDown["q"]) this.moveUp();
+      else if (keysDown["a"]) this.moveDown();
+    } else {
+      if (keysDown["p"]) this.moveUp();
+      else if (keysDown["l"]) this.moveDown();
     }
   }
 }
@@ -140,6 +135,9 @@ let keysDown = {
   p: false,
   l: false,
 };
+
+let possibleXSpeeds = [1, 2, 3, 4, 5];
+let possibleYSpeeds = [1, 2, 3];
 
 function update(context, canvas, leftBar, rightBar, gameBall) {
   requestAnimationFrame(() =>
@@ -157,11 +155,7 @@ function update(context, canvas, leftBar, rightBar, gameBall) {
   gameBall.draw(context);
 }
 
-function main() {
-  // Obtener el contexto para dibujar
-  const canvas = document.getElementById("pongCanvas");
-  const context = canvas.getContext("2d");
-
+function buildBars(canvas) {
   let barHeight = canvas.height / 3;
   let barWidth = 20;
   let initBarsY = canvas.height / 3;
@@ -170,18 +164,43 @@ function main() {
 
   const leftBar = new bar(leftBarX, initBarsY, barWidth, barHeight);
   const rightBar = new bar(rightBarX, initBarsY, barWidth, barHeight);
+  return [leftBar, rightBar];
+}
 
+function buildBall(canvas) {
   let ballX = canvas.width / 2;
   let ballY = canvas.height / 2;
   let radius = 10;
   let possibleDirs = [-1, 1]; // left, right
   let ballDirX = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
   let ballDirY = possibleDirs[Math.floor(Math.random() * possibleDirs.length)];
+  let xSpeed = possibleXSpeeds[Math.floor(Math.random() * possibleXSpeeds.length)];
+  let ySpeed = possibleYSpeeds[Math.floor(Math.random() * possibleYSpeeds.length)];
 
-  const gameBall = new ball(ballX, ballY, radius, ballDirX, ballDirY);
+  const gameBall = new ball(
+    ballX,
+    ballY,
+    radius,
+    ballDirX,
+    ballDirY,
+    xSpeed,
+    ySpeed
+  );
+  
+  return gameBall;
+}
+
+function main() {
+  // Obtener el contexto para dibujar
+  const canvas = document.getElementById("pongCanvas");
+  const context = canvas.getContext("2d");
+
+  bars = buildBars(canvas);
+
+  gameBall = buildBall(canvas);
 
   document.addEventListener("keydown", (event) => (keysDown[event.key] = true));
   document.addEventListener("keyup", (event) => (keysDown[event.key] = false));
 
-  update(context, canvas, leftBar, rightBar, gameBall);
+  update(context, canvas, bars[0], bars[1], gameBall);
 }
