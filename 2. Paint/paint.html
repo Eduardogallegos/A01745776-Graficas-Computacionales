@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint</title>
+    <script src="paint.js"></script>
+    <link rel="stylesheet" href="paint.css">
+</head>
+<body onload="main();"> 
+    <hr id="line">
+    <div class="grid-container">
+        <div class="menu">
+            <input id="widthSlider" type=range min=1 max=10 value=1>
+            <p>Line width: <span id="widthText"></span></p>
+            <input type="button" value="Clear canvas" id="clearBtn">
+            <div>
+                <button class="btnColor" id="blueBtn" type="button" value="blue"></button>
+                <button class="btnColor" id="redBtn" type="button" value="red"></button>
+                <button class="btnColor" id="greenBtn" type="button" value="green"></button>
+                <button class="btnColor" id="orangeBtn" type="button" value="orange"></button>
+                <br>
+                <button class="btnColor" id="purpleBtn" type="button" value="purple"></button>
+                <button class="btnColor" id="blackBtn" type="button" value="black"></button>
+                <button class="btnColor" id="pinkBtn" type="button" value="pink"></button>
+                <button class="btnColor" id="greyBtn" type="button" value="grey"></button>
+            </div>
+        </div>
+        <div class="main">
+            <canvas id="paintCanvas" width="1200" height="600" style="border: 5px solid black;"></canvas>
+        </div> 
+    </div>
+</body>
+</html>
