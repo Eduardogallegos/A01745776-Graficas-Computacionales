@@ -18,3 +18,43 @@
     height: 50px;
     width: 50px;
 }
+
+#blueBtn{
+    background-color: blue;
+    border-color: blue;
+}
+
+#redBtn{
+    background-color: red;
+    border-color: red;
+}
+
+#greenBtn{
+    background-color: green;
+    border-color: green;
+}
+
+#orangeBtn{
+    background-color: orange;
+    border-color: orange;
+}
+
+#purpleBtn{
+    background-color: purple;
+    border-color: purple;
+}
+
+#blackBtn{
+    background-color: black;
+    border-color: black;
+}
+
+#pinkBtn{
+    background-color: pink;
+    border-color: pink;
+}
+
+#greyBtn{
+    background-color: grey;
+    border-color: grey;
+}

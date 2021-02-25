@@ -54,11 +54,11 @@ function main() {
   const canvasTop = canvasCoords.top;
 
   // Config del mouse
-  var mouseX = 0;
-  var mouseY = 0;
+  let mouseX = 0;
+  let mouseY = 0;
   context.strokeStyle = "black";
   context.lineWidth = 1;
-  var isDrawing = false;
+  let isDrawing = false;
 
   canvas.addEventListener("mousedown", (event) => {
     let mouseCoords = setCorrectMouseCoords(
