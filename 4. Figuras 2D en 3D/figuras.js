@@ -1,33 +1,8 @@
+// Eduardo Gallegos 
+// A01745776
+// Based on https://github.com/octavio-navarro/Computer-Graphics/blob/07564c9ab683e99225a838510854368eed9aaa03/01_Triangle/triangle.js
+
 let mat4 = glMatrix.mat4;
-
-function main(){
-    let canvas = document.getElementById("canvas");            
-    let gl = initWebGL(canvas);
-    
-    initGL(gl, canvas);
-    initViewport(gl, canvas);
-    initShader(gl);
-
-    let square = createSquare(gl);
-    let triangle = createTriangle(gl);
-    let rombo=createRombo(gl);
-    let circulo=createCirculo(gl);
-
-    mat4.identity(modelViewMatrix);
-    mat4.translate(modelViewMatrix, modelViewMatrix, [-1.0, 0.0, -3.333]);
-    draw(gl, square);
-    
-    mat4.identity(modelViewMatrix);
-    mat4.translate(modelViewMatrix, modelViewMatrix, [1, 0.0, -3.333]);
-    draw(gl, triangle);
-
-    mat4.identity(modelViewMatrix);
-    mat4.translate(modelViewMatrix, modelViewMatrix, [-1, -0.8, -3.333]);
-    draw(gl, rombo);
-    mat4.identity(modelViewMatrix);
-    mat4.translate(modelViewMatrix, modelViewMatrix, [1, -0.8, -3.333]);
-    draw(gl, circulo);
-}
 
 // ModelView Matrix: defines where the square is positioned in the 3D coordinate system relative to the camera
 // Projection Matrix: required by the shader to convert the 3D space into the 2D space of the viewport. 
@@ -54,43 +29,63 @@ let fragmentShaderSource =
 
 let shaderProgram, shaderVertexPositionAttribute, shaderProjectionMatrixUniform, shaderModelViewMatrixUniform;
 
+function main(){
+    let canvas = document.getElementById("canvas");            
+    let gl = initWebGL(canvas);
+    
+    initGL(gl, canvas);
+    initViewport(gl, canvas);
+    initShader(gl);
+
+    let square = createSquare(gl);
+    let triangle = createTriangle(gl);
+    let rombo = createRombo(gl);
+    let pacman = createPacman(gl);
+
+    getMatReadyNDraw(gl, [-1.0, 0.0, -3.333], square);
+    getMatReadyNDraw(gl, [1.0, 0.0, -3.333], triangle);
+    getMatReadyNDraw(gl, [-1.0, -0.6, -3.333], rombo);
+    getMatReadyNDraw(gl, [1.0, -0.6, -3.333], pacman);
+
+};
+
+function getMatReadyNDraw(gl, coords, shape){
+    mat4.identity(modelViewMatrix);
+    mat4.translate(modelViewMatrix, modelViewMatrix, coords);
+    draw(gl, shape);
+};
+
 // Initializes the context for use with WebGL
-function initWebGL(canvas) 
-{
+function initWebGL(canvas){
 
     let gl = null;
     let msg = "Your browser does not support WebGL, or it is not enabled by default.";
 
-    try 
-    {
+    try{
         // The getContext method can take one of the following context id strings:
         // "2d" for a 2d canvas context, "webgl" for a WebGL context, or "experimental-webgl" to get a xontext for earlier-version browsers.
         // Use of "experimental-webgl" is recommended to get a context for all WebGL capable browsers.
         gl = canvas.getContext("experimental-webgl");
     } 
-    catch (e)
-    {
+    catch (e){
         msg = "Error creating WebGL Context!: " + e.toString();
     }
 
-    if (!gl)
-    {
+    if (!gl){
         alert(msg);
         throw new Error(msg);
     }
 
     return gl;        
-}
+};
 
 // The viewport is the rectangular bounds of where to draw. 
 // In this case, the viewport will take up the entire contents of the canvas' display area.
-function initViewport(gl, canvas)
-{
+function initViewport(gl, canvas){
     gl.viewport(0, 0, canvas.width, canvas.height);
-}
+};
 
-function initShader(gl)
-{
+function initShader(gl){
     // load and compile the fragment and vertex shader
     let fragmentShader = createShader(gl, fragmentShaderSource, "fragment");
     let vertexShader = createShader(gl, vertexShaderSource, "vertex");
@@ -117,10 +112,9 @@ function initShader(gl)
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
         alert("Could not initialise shaders");
     }
-}
+};
 
-function initGL(gl, canvas)
-{
+function initGL(gl, canvas){
     // clear the background (with black)
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -145,11 +139,10 @@ function initGL(gl, canvas)
     // near	    number	Near bound of the frustum
     // far	    number	Far bound of the frustum
     mat4.perspective(projectionMatrix, Math.PI / 4, canvas.width / canvas.height, 1, 10000);
-}
+};
 
 // Helper function that uses WebGL methods to compile the vertex and fragments shaders from a source.
-function createShader(gl, str, type)
-{
+function createShader(gl, str, type){
     let shader;
     if (type == "fragment") {
         shader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -168,10 +161,9 @@ function createShader(gl, str, type)
     }
 
     return shader;
-}
+};
 
-// Based on https://github.com/octavio-navarro/Computer-Graphics/blob/07564c9ab683e99225a838510854368eed9aaa03/01_Triangle/triangle.js#L185
-function draw(gl, obj) {
+function draw(gl, obj){
    // set the shader to use
    gl.useProgram(shaderProgram);
 
@@ -198,16 +190,14 @@ function draw(gl, obj) {
 
    // draw the object
    gl.drawArrays(obj.primtype, 0, obj.nVerts);
-}
+};
 
 // Create the vertex data for a square to be drawn.
 // WebGL drawing is done with primitives — different types of objects to draw. WebGL primitive types include triangles, points, and lines. 
 // Triangles, the most commonly used primitive, are actually accessible in two different forms: as triangle sets (arrays of triangles) and triangle strips (described shortly). 
 // Primitives use arrays of data, called buffers, which define the positions of the vertices to be drawn.
-function createSquare(gl) 
-{
-    let vertexBuffer;
-    vertexBuffer = gl.createBuffer();
+function createSquare(gl) {
+    let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     let verts = [
         0.75,  1.25,  0.0,
@@ -224,11 +214,10 @@ function createSquare(gl)
     // The resulting object contains the vertexbuffer, the size of the vertex structure (3 floats, x, y, z), the number of vertices to be drawn, the the primitive to draw.
     let square = {buffer:vertexBuffer, vertSize:3, nVerts:4, primtype:gl.TRIANGLE_STRIP};
     return square;
-}
-function createRombo(gl) 
-{
-    let vertexBuffer;
-    vertexBuffer = gl.createBuffer();
+};
+
+function createRombo(gl) {
+    let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     let verts = [
         0.25,  0.5,  0.0,
@@ -245,11 +234,10 @@ function createRombo(gl)
     // The resulting object contains the vertexbuffer, the size of the vertex structure (3 floats, x, y, z), the number of vertices to be drawn, the the primitive to draw.
     let rombo = {buffer:vertexBuffer, vertSize:3, nVerts:4, primtype:gl.TRIANGLE_FAN};
     return rombo;
-}
-function createTriangle(gl)
-{
-    let vertexBuffer;
-    vertexBuffer = gl.createBuffer();
+};
+
+function createTriangle(gl){
+    let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     let verts = [
         0.0, 1.25, 0.0,
@@ -265,34 +253,32 @@ function createTriangle(gl)
     // The resulting object contains the vertexbuffer, the size of the vertex structure (3 floats, x, y, z), the number of vertices to be drawn, the the primitive to draw.
     let triangle = {buffer:vertexBuffer, vertSize:3, nVerts:3, primtype:gl.TRIANGLES};
     return triangle;
-}  
-function createCirculo(gl) 
-{
-    let vertexBuffer;
-    vertexBuffer = gl.createBuffer();
+};
+
+function createPacman(gl) {
+    let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    //let verts = [
-      //  0.25,  0.5,  0.0,
-        //-.25, 0,  0.0,
-        //0.25,  -.5,  0.0,
-        //0.75                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           , 0,  0.0,
-    //];
+
     let verts=[0,0,0];
     let radius=0.5;
     let rad=Math.PI/180;
     for (let angulo=30;angulo<=330;angulo++){
-
         verts.push(radius*Math.cos(angulo*rad))
         verts.push(radius*Math.sin(angulo*rad))
         verts.push(0.0)
     }
-    // void gl.bufferData(target, ArrayBufferView srcData, usage, srcOffset, length);
-    // target = gl.ARRAY_BUFFER: Buffer containing vertex attributes, such as vertex coordinates, texture coordinate data, or vertex color data.
-    // srcData = This is a new data type introduced into web browsers for use with WebGL. Float32Array is a type of ArrayBuffer, also known as a typed array. This is a JavaScript type that stores compact binary data. 
-    // usage = A GLenum specifying the usage pattern of the data store. gl.STATIC_DRAW: Contents of the buffer are likely to be used often and not change often. Contents are written to the buffer, but not read.
+  
+    // gl.ARRAY_BUFFER: Buffer containing vertex attributes, such as vertex coordinates, texture coordinate data, or vertex color data.
+    // This is a new data type introduced into web browsers for use with WebGL. Float32Array is a type of ArrayBuffer, also known as a typed array. This is a JavaScript type that stores compact binary data. 
+    // A GLenum specifying the usage pattern of the data store. gl.STATIC_DRAW: Contents of the buffer are likely to be used often and not change often. Contents are written to the buffer, but not read.
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
 
     // The resulting object contains the vertexbuffer, the size of the vertex structure (3 floats, x, y, z), the number of vertices to be drawn, the the primitive to draw.
-    let sphere = {buffer:vertexBuffer, vertSize:3, nVerts:verts.length/3, primtype:gl.TRIANGLE_FAN};
-    return sphere;
-}
+    let pacman = {
+        buffer:vertexBuffer,
+        vertSize:3,
+        nVerts:verts.length/3,
+        primtype:gl.TRIANGLE_FAN
+    };
+    return pacman;
+};
