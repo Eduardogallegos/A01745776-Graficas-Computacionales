@@ -206,69 +206,56 @@ function createOctahedron(gl, translation, rotationAxis)
     let vertexBuffer;
     vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-     let verts = [
-      //Cara1
-    0, 1, 0,
-    -1, 0, 0, 
-    0, 0, 1,
-    //Cara2
-    0, 1, 0,
-    1, 0, 0, 
-    0, 0, 1,
-    //Cara3
-    0, 1, 0,
-    -1, 0, 0, 
-    0, 0, -1, 
-    //Cara4
-    0, 1, 0,
-    1, 0, 0, 
-    0, 0, -1,
-    //Cara5
-    0, -1, 0,
-    -1, 0, 0, 
-    0, 0, 1,
-    //Cara6
-    0, -1, 0,
-    1, 0, 0, 
-    0, 0, 1,
-    //Cara7
-    0, -1, 0,
-    -1, 0, 0, 
-    0, 0, -1, 
-    //Cara8
-    0, -1, 0,
-    1, 0, 0, 
-    0, 0, -1
-       ];
+    let verts = [
+        //Cara1
+        0, 1, 0,
+        -1, 0, 0, 
+        0, 0, 1,
+        //Cara2
+        0, 1, 0,
+        1, 0, 0, 
+        0, 0, 1,
+        //Cara3
+        0, 1, 0,
+        -1, 0, 0, 
+        0, 0, -1, 
+        //Cara4
+        0, 1, 0,
+        1, 0, 0, 
+        0, 0, -1,
+        //Cara5
+        0, -1, 0,
+        -1, 0, 0, 
+        0, 0, 1,
+        //Cara6
+        0, -1, 0,
+        1, 0, 0, 
+        0, 0, 1,
+        //Cara7
+        0, -1, 0,
+        -1, 0, 0, 
+        0, 0, -1, 
+        //Cara8
+        0, -1, 0,
+        1, 0, 0, 
+        0, 0, -1
+    ];
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
 
     // Color data
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    let faceColors = [
-        
-
-        [1.0, 1.0, 0.0, 1.0], // Triangle 1
-        [1.0, 0.0, 1.0, 1.0], // Triangle 2
-        [0.0, 1.0, 1.0, 1.0],  // Triangle 3
-        [0.0, 0.5, 1.0, 1.0], //Triangle 4
-        [0.5, 0.5, 0.5, 1.0], //Trinagle 5
-        [0, 0.5, 0.5, 1],  // Triangle 6
-        [0, 0, 0.8, 1], //Triangle 7
-        [0, 0.6, 0.5, 0.3], //Trinagle 8
-       
-        
-
-    ];
+    let faceColors = [];
+    for (let i = 0; i < 8; i++){
+        let r = Math.random();
+        let g = Math.random();
+        let b = Math.random();
+        faceColors.push([r, g, b, 1.0]);
+    }
 
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
     let vertexColors = [];
-    // for (const color of faceColors) 
-    // {
-    //     for (let j=0; j < 4; j++)
-    //         vertexColors.push(...color);
-    // }
     faceColors.forEach(color =>{
         for (let j=0; j < 3; j++)
             vertexColors.push(...color);
@@ -281,10 +268,14 @@ function createOctahedron(gl, translation, rotationAxis)
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
 
     let cubeIndices = [
-        //Faces2
-        0, 1, 2, 3,4,5,
-        6,7,8,9,10,11,
-        12,13,14,15,16,17,18,19,20,21,22,23
+        0,1,2,
+        3,4,5,
+        6,7,8,
+        9,10,11,
+        12,13,14,
+        15,16,17,
+        18,19,20,
+        21,22,23
     ];
 
     // gl.ELEMENT_ARRAY_BUFFER: Buffer used for element indices.
