@@ -39,12 +39,12 @@ function main(){
     let gl = initWebGL(canvas);
     initViewport(gl, canvas);
     initGL(canvas);
-    // let pyramid = createPyramid(gl, [-5, 0, -7], [0.1, 1.0, 0.2]);
+    let scutoid = createScutoid(gl, [-3.5, 0, -7], [1.0, 1.0, 0.2]);
     let octahedron = createOctahedron(gl,[5, 0, -6], [0, 1, 0]);
-    let dodecahedron = createDodecahedron(gl,[0, 0, -6],[[-0.4, 1.0, 0.1], [0, 1, 0]]);
+    let dodecahedron = createDodecahedron(gl,[1.5, 0, -6],[[-0.4, 1.0, 0.1], [0, 1, 0]]);
     
     initShader(gl);
-    run(gl, [ octahedron,dodecahedron]);
+    run(gl, [scutoid, octahedron,dodecahedron]);
 }
 
 
@@ -81,69 +81,98 @@ function initGL(canvas)
     mat4.translate(projectionMatrix, projectionMatrix, [0, 0, -5]);
 }
 
+function getColors(colors){
+    let faceColors = [];
+    for (let i = 0; i < colors; i++){
+        let r = Math.random();
+        let g = Math.random();
+        let b = Math.random();
+        faceColors.push([r, g, b, 1.0]);
+    }
+    return faceColors;
+}
+
 // Create the vertex, color and index data for a multi-colored cube
-function createPyramid(gl, translation, rotationAxis)
-{    
+function createScutoid(gl, translation, rotationAxis)
+{
+    let phi=(1+Math.sqrt(5))/2 // 1.6180339 
     let vertexBuffer;
     vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-     let verts = [
-      //TriangleBase1
-      0,1,0,
-      -1* Math.sin((2*Math.PI)/5), Math.cos((2*Math.PI)/5), 0,
-      - 1*Math.sin((4*Math.PI)/5), - Math.cos((Math.PI)/5),0,
-      //TriangleBase2
-      0,1,0,
-      - Math.sin((4*Math.PI)/5), - Math.cos((Math.PI)/5),0,
-      Math.sin((4*Math.PI)/5), - Math.cos((Math.PI)/5),0,
-     
+    let verts = [
+      // Pentagon
+      -1,-2,-1,
+      -1/phi,-2,0,
+      1/phi,-2,0,
+      1,-2,-1,
+      0,-2,-phi,
 
-      //TriangleBase3
-      0,1,0,
-      Math.sin((4*Math.PI)/5), - Math.cos((Math.PI)/5),0,
-      Math.sin((2*Math.PI)/5), Math.cos((2*Math.PI)/5), 0,
-    //Face1
-      0,1,0,
-      -1* Math.sin((2*Math.PI)/5), Math.cos((2*Math.PI)/5), 0,
-      0,0,2,
-      //Face2
-      0,1,0,
-      Math.sin((2*Math.PI)/5), Math.cos((2*Math.PI)/5), 0,
-      0,0,2,
+      // Hexagon
+      1,2,0,
+      Math.cos(60*(Math.PI/180)),2,Math.sin(60*(Math.PI/180)),
+      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)),
+      -1,2,0,
+      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)),
+      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)),
 
-      //Face3
-      Math.sin((4*Math.PI)/5), - Math.cos((Math.PI)/5),0,
-      Math.sin((2*Math.PI)/5), Math.cos((2*Math.PI)/5), 0,
-      0,0,2,
+      // Cara 1
+      -1/phi,-2,0,
+      1/phi,-2,0,
+      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)),
 
-      //Face4
-      - 1*Math.sin((4*Math.PI)/5), - Math.cos((Math.PI)/5),0,
-      Math.sin((4*Math.PI)/5), - Math.cos((Math.PI)/5),0,
-      0,0,2,
-      //Face5
-      - 1*Math.sin((4*Math.PI)/5), - Math.cos((Math.PI)/5),0,
-      -1* Math.sin((2*Math.PI)/5), Math.cos((2*Math.PI)/5), 0,
-      0,0,2
-       ];
+      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)),
+      Math.cos(60*(Math.PI/180)),2,Math.sin(60*(Math.PI/180)),
+      1/phi,-2,0,
+
+      // Cara 2
+      -1,-2,-1,
+      -1/phi,-2,0,
+      -1,2,0,
+
+      -1,2,0,
+      -1/phi,-2,0,
+      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)),
+
+      // Cara 3
+      -1,2,0,
+      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)),
+      -1,-2,-1,
+
+      -1,-2,-1,
+      0,-2,-phi,
+      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)),
+
+      // Cara rara 1
+      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)),
+      1,2,0,
+      1.5,0.5,-1,
+
+      // Cara rara 2
+      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)),
+      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)),
+      0,-2,-phi,
+
+      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)),
+      0,-2,-phi,
+      1.5,0.5,-1,
+
+      1,-2,-1,
+      0,-2,-phi,
+      1.5,0.5,-1,
+
+      // Cara rara 3
+      1,-2,-1,
+      1.5,0.5,-1,
+      
+
+    ];
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
 
     // Color data
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    let faceColors = [
-        [0.0, 1.0, 0.0, 1.0], // Pentagon
-        [0.0, 1.0, 0.0, 1.0], // Pentagon
-        [0.0, 1.0, 0.0, 1.0], // Pentagon
-
-        [1.0, 1.0, 0.0, 1.0], // Triangle 1
-        [1.0, 0.0, 1.0, 1.0], // Triangle 2
-        [0.0, 1.0, 1.0, 1.0],  // Triangle 3
-        [0.0, 0.5, 1.0, 1.0], //Triangle 4
-        [0.5, 0.5, 0.5, 1.0] //Trinagle 5
-        
-
-    ];
+    let faceColors = getColors(15);
 
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
     let vertexColors = [];
@@ -159,30 +188,28 @@ function createPyramid(gl, translation, rotationAxis)
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
 
     let cubeIndices = [
-        //BasePentagon
-       0, 1,2, 3,4,5, 
-       6,7,8,    
-          
-       //Faces
-       9,10,11, 12, 13, 14,
-       15,16,17,18,19,20,
-       21,22,23
-
-
+        0,1,2,      0,2,3,      0,3,4, // Pentagon
+        5,6,7,      5,7,8,      5,8,9,  5,9,10, // Hexagon
+        11,12,13,   14,15,16,   // Cara 1
+        17,18,19,   20,21,22,   // Cara 2
+        23,24,25,   26,27,28,   // Cara 3
+        29,30,31,   // Cara rara 1
+        32,33,34,   35,36,37,   38,39,40, // Cara rara 2
+        41,42,42,   43,44,45,   46,47,48, // Cara rara 3
     ];
 
     // gl.ELEMENT_ARRAY_BUFFER: Buffer used for element indices.
     // Uint16Array: Array of 16-bit unsigned integers.
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeIndices), gl.STATIC_DRAW);
     
-    let pyramid = {
+    let scutoid = {
             buffer:vertexBuffer, colorBuffer:colorBuffer, indices:cubeIndexBuffer,
             vertSize:3, nVerts:verts.length, colorSize:4, nColors: 24, nIndices:cubeIndices.length,
             primtype:gl.TRIANGLES, modelViewMatrix: mat4.create(), currentTime : Date.now()};
 
-    mat4.translate(pyramid.modelViewMatrix, pyramid.modelViewMatrix, translation);
+    mat4.translate(scutoid.modelViewMatrix, scutoid.modelViewMatrix, translation);
 
-    pyramid.update = function()
+    scutoid.update = function()
     {
         let now = Date.now();
         let deltat = now - this.currentTime;
@@ -198,7 +225,7 @@ function createPyramid(gl, translation, rotationAxis)
         mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
     };
     
-    return pyramid;
+    return scutoid;
 }
 // Create the vertex, color and index data for a multi-colored cube
 function createOctahedron(gl, translation, rotationAxis)
@@ -246,13 +273,7 @@ function createOctahedron(gl, translation, rotationAxis)
     // Color data
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    let faceColors = [];
-    for (let i = 0; i < 8; i++){
-        let r = Math.random();
-        let g = Math.random();
-        let b = Math.random();
-        faceColors.push([r, g, b, 1.0]);
-    }
+    let faceColors = getColors(8);
 
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
     let vertexColors = [];
@@ -419,14 +440,7 @@ function createDodecahedron(gl, translation, rotationAxis)
     // Color data
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    let faceColors = [];
-    for(let index=0; index < 36; index++){
-        let r = Math.random();
-        let g = Math.random();
-        let b = Math.random();
-        faceColors.push([r, g, b, 1.0]);
-    }
-
+    let faceColors = getColors(36);
 
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
     let vertexColors = [];
