@@ -81,17 +81,6 @@ function initGL(canvas)
     mat4.translate(projectionMatrix, projectionMatrix, [0, 0, -5]);
 }
 
-function getColors(colors){
-    let faceColors = [];
-    for (let i = 0; i < colors; i++){
-        let r = Math.random();
-        let g = Math.random();
-        let b = Math.random();
-        faceColors.push([r, g, b, 1.0]);
-    }
-    return faceColors;
-}
-
 // Create the vertex, color and index data for a multi-colored cube
 function createScutoid(gl, translation, rotationAxis)
 {
@@ -101,69 +90,22 @@ function createScutoid(gl, translation, rotationAxis)
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     let verts = [
       // Pentagon
-      -1,-2,-1,
-      -1/phi,-2,0,
-      1/phi,-2,0,
-      1,-2,-1,
-      0,-2,-phi,
+      -1,-2,-1, // 0
+      -1/phi,-2,0, // 1
+      1/phi,-2,0, // 2
+      1,-2,-1, // 3
+      0,-2,-phi, // 4
 
       // Hexagon
-      1,2,0,
-      Math.cos(60*(Math.PI/180)),2,Math.sin(60*(Math.PI/180)),
-      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)),
-      -1,2,0,
-      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)),
-      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)),
+      1,2,0, // 5
+      Math.cos(60*(Math.PI/180)),2,Math.sin(60*(Math.PI/180)), // 6
+      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)), // 7
+      -1,2,0, // 8
+      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)), // 9
+      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)), // 10
 
-      // Cara 1
-      -1/phi,-2,0,
-      1/phi,-2,0,
-      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)),
-
-      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)),
-      Math.cos(60*(Math.PI/180)),2,Math.sin(60*(Math.PI/180)),
-      1/phi,-2,0,
-
-      // Cara 2
-      -1,-2,-1,
-      -1/phi,-2,0,
-      -1,2,0,
-
-      -1,2,0,
-      -1/phi,-2,0,
-      Math.cos(120*(Math.PI/180)),2,Math.sin(120*(Math.PI/180)),
-
-      // Cara 3
-      -1,2,0,
-      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)),
-      -1,-2,-1,
-
-      -1,-2,-1,
-      0,-2,-phi,
-      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)),
-
-      // Cara rara 1
-      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)),
-      1,2,0,
-      1.5,0.5,-1,
-
-      // Cara rara 2
-      Math.cos(240*(Math.PI/180)),2,Math.sin(240*(Math.PI/180)),
-      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)),
-      0,-2,-phi,
-
-      Math.cos(300*(Math.PI/180)),2,Math.sin(300*(Math.PI/180)),
-      0,-2,-phi,
-      1.5,0.5,-1,
-
-      1,-2,-1,
-      0,-2,-phi,
-      1.5,0.5,-1,
-
-      // Cara rara 3
-      1,-2,-1,
-      1.5,0.5,-1,
-      
+      // Pico
+      1,1,-1,// 11
 
     ];
 
@@ -172,7 +114,28 @@ function createScutoid(gl, translation, rotationAxis)
     // Color data
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    let faceColors = getColors(15);
+    let faceColors = [];
+    for (let i = 0; i < 8; i++){
+        let r = Math.random();
+        let g = Math.random();
+        let b = Math.random();
+        faceColors.push([r, g, b, 1.0]);
+        // if(i in [0,6,7]){
+        //     faceColors.push([r, g, b, 1.0]);
+        //     faceColors.push([r, g, b, 1.0]);
+        //     faceColors.push([r, g, b, 1.0]);
+        // }else if (i in [2,3,4]){
+        //     faceColors.push([r, g, b, 1.0]);
+        //     faceColors.push([r, g, b, 1.0]);
+        // }else if (i == 5){
+        //     faceColors.push([r, g, b, 1.0]);
+        // }else if (i == 1){
+        //     faceColors.push([r, g, b, 1.0]);
+        //     faceColors.push([r, g, b, 1.0]);
+        //     faceColors.push([r, g, b, 1.0]);
+        //     faceColors.push([r, g, b, 1.0]);
+        // }
+    }
 
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
     let vertexColors = [];
@@ -190,12 +153,12 @@ function createScutoid(gl, translation, rotationAxis)
     let cubeIndices = [
         0,1,2,      0,2,3,      0,3,4, // Pentagon
         5,6,7,      5,7,8,      5,8,9,  5,9,10, // Hexagon
-        11,12,13,   14,15,16,   // Cara 1
-        17,18,19,   20,21,22,   // Cara 2
-        23,24,25,   26,27,28,   // Cara 3
-        29,30,31,   // Cara rara 1
-        32,33,34,   35,36,37,   38,39,40, // Cara rara 2
-        41,42,42,   43,44,45,   46,47,48, // Cara rara 3
+        1,2,7,      7,6,2,   // Cara 1
+        0,1,8,      8,1,7,   // Cara 2
+        8,9,0,      0,4,9,   // Cara 3
+        10,5,11,   // Cara rara 1
+        9,10,4,     10,4,11,   3,4,11, // Cara rara 2
+        2,3,6,      5,6,3,   5,3,11, // Cara rara 3
     ];
 
     // gl.ELEMENT_ARRAY_BUFFER: Buffer used for element indices.
@@ -273,7 +236,13 @@ function createOctahedron(gl, translation, rotationAxis)
     // Color data
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    let faceColors = getColors(8);
+    let faceColors = [];
+    for (let i = 0; i < 8; i++){
+        let r = Math.random();
+        let g = Math.random();
+        let b = Math.random();
+        faceColors.push([r, g, b, 1.0]);
+    }
 
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
     let vertexColors = [];
@@ -328,13 +297,13 @@ function createOctahedron(gl, translation, rotationAxis)
         mat4.rotate(this.modelViewMatrix, this.modelViewMatrix, angle, rotationAxis);
         if(down){
             mat4.translate(this.modelViewMatrix, this.modelViewMatrix,[0,-6*fract,0])
-            if(this.modelViewMatrix[13]<-4){
+            if(this.modelViewMatrix[13]<-3.5){
                 down=false;
             }
         }
         else{
             mat4.translate(this.modelViewMatrix, this.modelViewMatrix,[0,+6*fract,0])
-            if(this.modelViewMatrix[13]>3){
+            if(this.modelViewMatrix[13]>3.5){
                 down=true;  
         }
     }
@@ -440,7 +409,15 @@ function createDodecahedron(gl, translation, rotationAxis)
     // Color data
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-    let faceColors = getColors(36);
+    let faceColors = [];
+    for (let i = 0; i < 12; i++){
+        let r = Math.random();
+        let g = Math.random();
+        let b = Math.random();
+        faceColors.push([r, g, b, 1.0]);
+        faceColors.push([r, g, b, 1.0]);
+        faceColors.push([r, g, b, 1.0]);
+    }
 
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
     let vertexColors = [];
