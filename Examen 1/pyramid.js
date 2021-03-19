@@ -156,20 +156,41 @@ function createPyramid(gl, translation, rotationAxis)
     let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
     let verts = [
-        1,1,1,
-        1,-1,-1,-1,1,-1,-1,-1,1
+        1,-1/Math.sqrt(3),-1/Math.sqrt(6),
+        -1,-1/Math.sqrt(3),-1/Math.sqrt(6),
+        0,2/Math.sqrt(3),-1/Math.sqrt(6),
+        0,0,3/Math.sqrt(6),
     ]
+
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
 
     // Color data
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    let faceColors = [];
+    for (let i = 0; i < 8; i++){
+        let r = Math.random();
+        let g = Math.random();
+        let b = Math.random();
+        faceColors.push([r, g, b, 1.0]);
+    }
+
+    // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
+    let vertexColors = [];
+    faceColors.forEach(color =>{
+        vertexColors.push(...color);
+    });
+
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexColors), gl.STATIC_DRAW);
     let cubeIndexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
 
     let indices = [
         0,1,2,
-        1,3,4
+        0,2,3,
+        0,1,3,
+        1,2,3
+        
     ]
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
