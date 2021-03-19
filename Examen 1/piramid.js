@@ -153,35 +153,68 @@ function draw(gl, objs)
 function getNewCoords(v1, v2){
     const newX = (v1.x + v2.x) / 2;
     const newY = (v1.y + v2.y) / 2;
-    return {x:newX, y:newY}
+    const newZ = (v1.z + v2.z) / 2;
+    return {
+      x:newX,
+      y:newY,
+      z:newZ
+    }
 };
-
-function getTrianglesCoords(){
-    if(subdivs>1){
-        const newSubdivs = --subdivs;
-        const newV1 = getNewCoords(v2, v3);
-        const newV2 = getNewCoords (v1, v3);
-        const newV3 = getNewCoords (v1, v2);
-        updateTriangles(context, newSubdivs, v1, newV2, newV3);
-        updateTriangles(context, newSubdivs, newV1, v2, newV3);
-        updateTriangles(context, newSubdivs, newV1, newV2, v3);
-      }else{
-        const triangles = new triangle(v1, v2, v3);
-        triangles.draw(context);
-      }
-}
 
 function createPyramid(gl, translation, rotationAxis) 
 {
     let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+    let verts1 = []
+    getTrianglesCoords(
+      3,
+      {x:1,y:-1/Math.sqrt(3),z:-1/Math.sqrt(6)},
+      {x:-1,y:-1/Math.sqrt(3),z:-1/Math.sqrt(6)},
+      {x:0,y:2/Math.sqrt(3),z:-1/Math.sqrt(6)}
+    )
+    getTrianglesCoords(
+      3,
+      {x:1,y:-1/Math.sqrt(3),z:-1/Math.sqrt(6)},
+      {x:0,y:2/Math.sqrt(3),z:-1/Math.sqrt(6)},
+      {x:0,y:0,z:3/Math.sqrt(6)},
+    )
+    getTrianglesCoords(
+      3,
+      {x:1,y:-1/Math.sqrt(3),z:-1/Math.sqrt(6)},
+      {x:-1,y:-1/Math.sqrt(3),z:-1/Math.sqrt(6)},
+      {x:0,y:0,z:3/Math.sqrt(6)}
+    )
+    getTrianglesCoords(
+      3,
+      {x:-1,y:-1/Math.sqrt(3),z:-1/Math.sqrt(6)},
+      {x:0,y:2/Math.sqrt(3),z:-1/Math.sqrt(6)},
+      {x:0,y:0,z:3/Math.sqrt(6)}
+    )
+
+    function getTrianglesCoords(subdivs, v1, v2, v3){
+      if(subdivs>1){
+          const newSubdivs = --subdivs;
+          const newV1 = getNewCoords(v2, v3);
+          const newV2 = getNewCoords (v1, v3);
+          const newV3 = getNewCoords (v1, v2);
+          getTrianglesCoords(newSubdivs, v1, newV2, newV3);
+          getTrianglesCoords(newSubdivs, newV1, v2, newV3);
+          getTrianglesCoords( newSubdivs, newV1, newV2, v3);
+      }else{
+        verts1.push(v1,v2,v3)
+      }
+    }
     
-    let verts = [
-        1,-1/Math.sqrt(3),-1/Math.sqrt(6),
-        -1,-1/Math.sqrt(3),-1/Math.sqrt(6),
-        0,2/Math.sqrt(3),-1/Math.sqrt(6),
-        0,0,3/Math.sqrt(6),
-    ]
+    let verts = []
+
+    verts1.forEach(vertsList => {
+      verts.push(vertsList.x)
+      verts.push(vertsList.y)
+      verts.push(vertsList.z)
+    });
+
+    console.log(verts)
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
 
@@ -206,13 +239,12 @@ function createPyramid(gl, translation, rotationAxis)
     let cubeIndexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
 
-    let indices = [
-        0,1,2,
-        0,2,3,
-        0,1,3,
-        1,2,3
-        
-    ]
+    let indices = []
+    for(let index = 0; index < 729; index++){
+      indices.push(index)
+    }
+    console.log(indices)
+
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
     let pyramid = {

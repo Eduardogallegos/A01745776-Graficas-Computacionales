@@ -13,18 +13,18 @@ class triangle {
     context.lineTo(this.v3.x, this.v3.y);
     context.closePath();
     context.fill();
-  };
-};
+  }
+}
 
 function clearCanvas(context, canvas) {
   context.clearRect(0, 0, canvas.width, canvas.height);
-};
+}
 
 function getNewCoords(v1, v2){
   const newX = (v1.x + v2.x) / 2;
   const newY = (v1.y + v2.y) / 2;
   return {x:newX, y:newY}
-};
+}
 
 function updateTriangles(context, subdivs, v1, v2, v3){
     if(subdivs>1){
@@ -38,8 +38,8 @@ function updateTriangles(context, subdivs, v1, v2, v3){
     }else{
       const triangles = new triangle(v1, v2, v3);
       triangles.draw(context);
-    };
-};
+    }
+}
 
 function main() {
   const canvas = document.getElementById("canvas");
@@ -56,5 +56,5 @@ function main() {
     clearCanvas(context, canvas);
     output.innerHTML = this.value;
     updateTriangles(context, this.value, initV1, initV2, initV3);
-  };
-};
+  }
+}
