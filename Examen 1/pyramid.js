@@ -133,55 +133,104 @@ function draw(gl, objs)
     // set the shader to use
     gl.useProgram(shaderProgram);
 
-    for(obj of objs)
-    {
-        gl.bindBuffer(gl.ARRAY_BUFFER, obj.buffer);
-        gl.vertexAttribPointer(shaderVertexPositionAttribute, obj.vertSize, gl.FLOAT, false, 0, 0);
+    for(obj of objs){
+      gl.bindBuffer(gl.ARRAY_BUFFER, obj.buffer);
+      gl.vertexAttribPointer(shaderVertexPositionAttribute, obj.vertSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, obj.colorBuffer);
-        gl.vertexAttribPointer(shaderVertexColorAttribute, obj.colorSize, gl.FLOAT, false, 0, 0);
-        
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obj.indices);
+      gl.bindBuffer(gl.ARRAY_BUFFER, obj.colorBuffer);
+      gl.vertexAttribPointer(shaderVertexColorAttribute, obj.colorSize, gl.FLOAT, false, 0, 0);
+      
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obj.indices);
 
-        gl.uniformMatrix4fv(shaderProjectionMatrixUniform, false, projectionMatrix);
-        gl.uniformMatrix4fv(shaderModelViewMatrixUniform, false, obj.modelViewMatrix);
+      gl.uniformMatrix4fv(shaderProjectionMatrixUniform, false, projectionMatrix);
+      gl.uniformMatrix4fv(shaderModelViewMatrixUniform, false, obj.modelViewMatrix);
 
-        gl.drawElements(obj.primtype, obj.nIndices, gl.UNSIGNED_SHORT, 0);
+      gl.drawElements(obj.primtype, obj.nIndices, gl.UNSIGNED_SHORT, 0);
     }
 }
 
 function getNewCoords(v1, v2){
-    const newX = (v1.x + v2.x) / 2;
-    const newY = (v1.y + v2.y) / 2;
-    return {x:newX, y:newY}
+  const newX = (v1.x + v2.x) / 2;
+  const newY = (v1.y + v2.y) / 2;
+  const newZ = (v1.z + v2.z) / 2;
+  return {
+    x:newX,
+    y:newY,
+    z:newZ
+  }
 };
 
-function getTrianglesCoords(){
-    if(subdivs>1){
-        const newSubdivs = --subdivs;
-        const newV1 = getNewCoords(v2, v3);
-        const newV2 = getNewCoords (v1, v3);
-        const newV3 = getNewCoords (v1, v2);
-        updateTriangles(context, newSubdivs, v1, newV2, newV3);
-        updateTriangles(context, newSubdivs, newV1, v2, newV3);
-        updateTriangles(context, newSubdivs, newV1, newV2, v3);
-      }else{
-        const triangles = new triangle(v1, v2, v3);
-        triangles.draw(context);
-      }
-}
-
-function createPyramid(gl, translation, rotationAxis) 
+function createPyramid(gl, division, translation, rotationAxis) 
 {
     let vertexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-    
-    let verts = [
-        1,-1/Math.sqrt(3),-1/Math.sqrt(6),
-        -1,-1/Math.sqrt(3),-1/Math.sqrt(6),
-        0,2/Math.sqrt(3),-1/Math.sqrt(6),
-        0,0,3/Math.sqrt(6),
+
+    let verts = []
+    let triangleVerts = [
+        {
+          x:1,
+          y:-1/Math.sqrt(3),
+          z:-1/Math.sqrt(6)
+        },
+        {
+            x:-1,
+            y:-1/Math.sqrt(3),
+            z:-1/Math.sqrt(6)
+        },
+        {
+            x:0,
+            y:2/Math.sqrt(3),
+            z:-1/Math.sqrt(6)
+        },
+        {
+            x:0,
+            y:0,
+            z:3/Math.sqrt(6)
+        },
     ]
+    getTrianglesCoords(
+      division,
+      triangleVerts[0],
+      triangleVerts[1],
+      triangleVerts[2]
+    )
+    getTrianglesCoords(
+      division,
+      triangleVerts[0],
+      triangleVerts[2],
+      triangleVerts[3]
+    )
+    getTrianglesCoords(
+      division,
+      triangleVerts[0],
+      triangleVerts[1],
+      triangleVerts[3]
+    )
+    getTrianglesCoords(
+      division,
+      triangleVerts[1],
+      triangleVerts[2],
+      triangleVerts[3]
+    )
+
+    function getTrianglesCoords(subdivs, v1, v2, v3){
+      if(subdivs>1){
+          const newSubdivs = --subdivs;
+          const newV1 = getNewCoords(v2, v3);
+          const newV2 = getNewCoords (v1, v3);
+          const newV3 = getNewCoords (v1, v2);
+          getTrianglesCoords(newSubdivs, v1, newV2, newV3);
+          getTrianglesCoords(newSubdivs, newV1, v2, newV3);
+          getTrianglesCoords( newSubdivs, newV1, newV2, v3);
+      }else{
+        const verts2 = [v1,v2,v3]
+        verts2.forEach(vert=>{
+          verts.push(vert.x)
+          verts.push(vert.y)
+          verts.push(vert.z)
+        })
+      }
+    }
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verts), gl.STATIC_DRAW);
 
@@ -189,7 +238,7 @@ function createPyramid(gl, translation, rotationAxis)
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     let faceColors = [];
-    for (let i = 0; i < 8; i++){
+    for (let i = 0; i < 108; i++){
         let r = Math.random();
         let g = Math.random();
         let b = Math.random();
@@ -199,6 +248,7 @@ function createPyramid(gl, translation, rotationAxis)
     // Each vertex must have the color information, that is why the same color is concatenated 4 times, one for each vertex of the cube's face.
     let vertexColors = [];
     faceColors.forEach(color =>{
+      for (let j=0; j < 3; j++)
         vertexColors.push(...color);
     });
 
@@ -206,13 +256,10 @@ function createPyramid(gl, translation, rotationAxis)
     let cubeIndexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
 
-    let indices = [
-        0,1,2,
-        0,2,3,
-        0,1,3,
-        1,2,3
-        
-    ]
+    let indices = []
+    for(let index = 0; index < 729; index++){
+      indices.push(index)
+    }
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
 
     let pyramid = {
@@ -236,26 +283,20 @@ function createPyramid(gl, translation, rotationAxis)
     return pyramid;
 }
 
-function update(gl, objs)
-{
+function update(gl, objs){
 	requestAnimationFrame(()=> { update(gl, objs); });
-
-    draw(gl, objs);
-
-    for(i = 0; i<objs.length; i++)objs[i].update();
+  draw(gl, objs);
+  for(i = 0; i<objs.length; i++)objs[i].update();
 }
 
-function main()
-{
-    let canvas = document.getElementById("pyramidCanvas");
-    let glCtx = initWebGL(canvas);
+function main(){
+  let canvas = document.getElementById("pyramidCanvas");
+  let glCtx = initWebGL(canvas);
 
-    initViewport(glCtx, canvas);
-    initGL(glCtx, canvas);
+  initViewport(glCtx, canvas);
+  initGL(glCtx, canvas);
 
-    let pyramid = createPyramid(glCtx, [0, 0, -3], [0, 1, 0]);
-
-    initShader(glCtx, vertexShaderSource, fragmentShaderSource);
-
-    update(glCtx, [pyramid]);
+  let pyramid = createPyramid(glCtx, 4, [0, 0, -3], [0, 1, 0]);
+  initShader(glCtx, vertexShaderSource, fragmentShaderSource);
+  update(glCtx, [pyramid]);
 }
