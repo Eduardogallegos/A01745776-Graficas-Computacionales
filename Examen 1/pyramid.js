@@ -238,7 +238,7 @@ function createPyramid(gl, division, translation, rotationAxis)
     let colorBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     let faceColors = [];
-    for (let i = 0; i < 108; i++){
+    for (let i = 0; i < verts.length/3; i++){
         let r = Math.random();
         let g = Math.random();
         let b = Math.random();
@@ -257,7 +257,7 @@ function createPyramid(gl, division, translation, rotationAxis)
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeIndexBuffer);
 
     let indices = []
-    for(let index = 0; index < 729; index++){
+    for(let index = 0; index < verts.length/3; index++){
       indices.push(index)
     }
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
