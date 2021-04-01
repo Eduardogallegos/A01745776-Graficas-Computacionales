@@ -187,7 +187,7 @@ function addElement() {
   let geometry = geometryOptions[randomGeometryIndex];
 
   // And put the geometry and material together into a mesh
-  mesh = new THREE.Mesh(geometry, material);
+  let mesh = new THREE.Mesh(geometry, material);
 
   // Tilt the mesh toward the viewer
   mesh.rotation.x = Math.PI / 5;
@@ -206,6 +206,18 @@ function addElement() {
   currentGroup = newGroup;
   console.log(generalGroup);
   console.log(currentGroup);
+}
+
+function addSatelite(){
+  let randomGeometryIndex = Math.floor(Math.random()*geometryOptions.length)
+
+  let geometry = geometryOptions[randomGeometryIndex];
+
+  // And put the geometry and material together into a mesh
+  let mesh = new THREE.Mesh(geometry, material);
+  mesh.position.set(1, 1, -0.667);
+
+  currentGroup.add(mesh);
 }
 
 function resetCanvas() {
