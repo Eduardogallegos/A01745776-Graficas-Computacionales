@@ -43,7 +43,7 @@ function animate() {
     mesh.rotation.y += angle;
   });
 
-  satelites_groups.forEach(satelite_group => {
+  satelites_groups.forEach((satelite_group) => {
     satelite_group.rotation.y -= angle / 2;
   });
 }
@@ -96,64 +96,8 @@ function createScene(canvas) {
   let ambientLight = new THREE.AmbientLight(0xffccaa, 0.2);
   scene.add(ambientLight);
 
-  //   // Create the cube geometry
-  //   let geometry = new THREE.BoxGeometry(2, 2, 2);
-
-  //   // And put the geometry and material together into a mesh
-  //   cube = new THREE.Mesh(geometry, material);
-
-  //   // Tilt the mesh toward the viewer
-  //   cube.rotation.x = Math.PI / 5;
-  //   cube.rotation.y = Math.PI / 5;
-
-  //   // Add the cube mesh to our group
-  //   cubeGroup.add(cube);
-
-  //   cubeGroup.position.set(1, 0, -0.5);
-
-  //   console.log("cube position:", cube);
-
-  //   // Create a group for the sphere
-  //   sphereGroup = new THREE.Object3D();
-  //   cubeGroup.add(sphereGroup);
-
-  //   // Move the sphere group up and back from the cube
-  //   sphereGroup.position.set(0, 3, -4);
-
-  //   // Create the sphere geometry
-  //   geometry = new THREE.SphereGeometry(1, 20, 20);
-
-  //   // And put the geometry and material together into a mesh
-  //   sphere = new THREE.Mesh(geometry, material);
-
-  //   // Add the sphere mesh to our group
-  //   sphereGroup.add(sphere);
-
-  //   // Create the cone geometry
-  //   geometry = new THREE.CylinderGeometry(0, 0.333, 0.444, 20, 20);
-
-  //   // And put the geometry and material together into a mesh
-  //   cone = new THREE.Mesh(geometry, material);
-
-  //   // Move the cone up and out from the sphere
-  //   cone.position.set(1, 1, -0.667);
-
-  //   // Add the cone mesh to our group
-  //   sphereGroup.add(cone);
-
   // Now add the group to our scene
   scene.add(generalGroup);
-
-  // This code gets the world position of the cone.
-  //   let coneWorldPosition = new THREE.Vector3();
-
-  //   cubeGroup.updateMatrixWorld();
-  //   sphereGroup.updateMatrixWorld();
-  //   cone.updateMatrixWorld();
-
-  //   console.log(cone.position);
-  //   cone.getWorldPosition(coneWorldPosition);
-  //   console.log(coneWorldPosition);
 }
 
 function getRandomCoords(min, max) {
@@ -202,7 +146,7 @@ function addSatelite() {
 }
 
 function resetCanvas() {
-  generalGroup.children =[];
+  generalGroup.children = [];
   currentGroup = null;
   meshes = [];
   satelites_groups = [];
