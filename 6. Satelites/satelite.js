@@ -10,16 +10,16 @@ let renderer = null,
   generalGroup = new THREE.Object3D(),
   currentGroup = null,
   meshes = [],
+  satelites_groups = [],
   textureUrl = "../images/ash_uvgrid01.jpg",
   texture = new THREE.TextureLoader().load(textureUrl),
   material = new THREE.MeshPhongMaterial({ map: texture }),
   geometryOptions = [
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.SphereGeometry(1, 20, 20),
-    new THREE.RingGeometry(0.5, 1, 32),
     new THREE.TorusGeometry(1, 0.5, 16, 50),
     new THREE.TorusKnotGeometry(0.5, 0.125, 100, 16),
-    new THREE.CylinderGeometry(0, 0.333, 0.444, 20, 20)
+    new THREE.CylinderGeometry(0, 0.333, 0.444, 20, 20),
   ];
 
 function main() {
@@ -32,21 +32,6 @@ function main() {
   run();
 }
 
-// Rotation has to be set when creating
-// function rotate (mesh){
-//   let now = Date.now();
-//   let deltat = now - currentTime;
-//   currentTime = now;
-//   let fract = deltat / duration;
-//   let angle = Math.PI * 2 * fract;
-//   let boolean = Math.floor(Math.random() * 2);
-//   let axes = [x,y,z];
-//   let rotationAxis = Math.floor(Math.random() * axes.length);
-//   if(boolean){
-//     mesh.rotation.rotationAxis
-//   }
-// }
-
 function animate() {
   let now = Date.now();
   let deltat = now - currentTime;
@@ -54,15 +39,13 @@ function animate() {
   let fract = deltat / duration;
   let angle = Math.PI * 2 * fract;
 
-  // Rotate the cube about its Y axis
-  cube.rotation.y += angle;
+  meshes.forEach((mesh) => {
+    mesh.rotation.y += angle;
+  });
 
-  // Rotate the sphere group about its Y axis
-  sphereGroup.rotation.y -= angle / 2;
-  sphere.rotation.x += angle;
-
-  // Rotate the cone about its X axis (tumble forward)
-  cone.rotation.z += angle;
+  satelites_groups.forEach(satelite_group => {
+    satelite_group.rotation.y -= angle / 2;
+  });
 }
 
 function run() {
@@ -74,7 +57,7 @@ function run() {
   renderer.render(scene, camera);
 
   // Spin the cube for next frame
-  //   animate();
+  animate();
 }
 
 function createScene(canvas) {
@@ -178,11 +161,9 @@ function getRandomCoords(min, max) {
 }
 
 function addElement() {
-  console.log(currentGroup);
-
   let newGroup = new THREE.Object3D();
 
-  let randomGeometryIndex = Math.floor(Math.random()*geometryOptions.length)
+  let randomGeometryIndex = Math.floor(Math.random() * geometryOptions.length);
 
   let geometry = geometryOptions[randomGeometryIndex];
 
@@ -204,12 +185,10 @@ function addElement() {
     getRandomCoords(-15, 0)
   );
   currentGroup = newGroup;
-  console.log(generalGroup);
-  console.log(currentGroup);
 }
 
-function addSatelite(){
-  let randomGeometryIndex = Math.floor(Math.random()*geometryOptions.length)
+function addSatelite() {
+  let randomGeometryIndex = Math.floor(Math.random() * geometryOptions.length);
 
   let geometry = geometryOptions[randomGeometryIndex];
 
@@ -218,11 +197,13 @@ function addSatelite(){
   mesh.position.set(1, 1, -0.667);
 
   currentGroup.add(mesh);
+  meshes.push(mesh);
+  satelites_groups.push(currentGroup);
 }
 
 function resetCanvas() {
-  console.log("canvas reset");
-  generalGroup.clear();
+  generalGroup.children =[];
   currentGroup = null;
   meshes = [];
+  satelites_groups = [];
 }
