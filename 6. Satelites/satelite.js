@@ -1,26 +1,25 @@
-let renderer = null,
-  scene = null,
-  camera = null,
-  cube = null,
-  sphere = null,
-  cone = null,
-  sphereGroup = null,
-  duration = 5000, // ms
-  currentTime = Date.now(),
-  generalGroup = new THREE.Object3D(),
-  currentGroup = null,
-  meshes = [],
-  satelites_groups = [],
-  textureUrl = "../images/ash_uvgrid01.jpg",
-  texture = new THREE.TextureLoader().load(textureUrl),
-  material = new THREE.MeshPhongMaterial({ map: texture }),
-  geometryOptions = [
+// Global consts
+const DURATION = 5000, // ms
+  TEXTURE_URL = "../images/ash_uvgrid01.jpg",
+  TEXTURE = new THREE.TextureLoader().load(TEXTURE_URL),
+  MATERIAL = new THREE.MeshPhongMaterial({ map: TEXTURE }),
+  GENERAL_GROUP = new THREE.Object3D(),
+  GEOMETRY_OPTIONS = [
     new THREE.BoxGeometry(1, 1, 1),
     new THREE.SphereGeometry(1, 20, 20),
     new THREE.TorusGeometry(1, 0.5, 16, 50),
     new THREE.TorusKnotGeometry(0.5, 0.125, 100, 16),
     new THREE.CylinderGeometry(0, 0.333, 0.444, 20, 20),
   ];
+
+// Global vars
+let renderer = null,
+  scene = null,
+  camera = null,
+  currentTime = Date.now(),
+  currentGroup = null,
+  meshes = [],
+  satellites_groups = [];
 
 function main() {
   const canvas = document.getElementById("webglcanvas");
@@ -33,18 +32,21 @@ function main() {
 }
 
 function animate() {
+  // Calculate the angle of movement
   let now = Date.now();
   let deltat = now - currentTime;
   currentTime = now;
-  let fract = deltat / duration;
+  let fract = deltat / DURATION;
   let angle = Math.PI * 2 * fract;
 
+  // Rotate every object
   meshes.forEach((mesh) => {
     mesh.rotation.y += angle;
   });
 
-  satelites_groups.forEach((satelite_group) => {
-    satelite_group.rotation.y -= angle / 2;
+  // Rotate every group that holds a satellite
+  satellites_groups.forEach((satellite_group) => {
+    satellite_group.rotation.y -= angle / 2;
   });
 }
 
@@ -97,7 +99,7 @@ function createScene(canvas) {
   scene.add(ambientLight);
 
   // Now add the group to our scene
-  scene.add(generalGroup);
+  scene.add(GENERAL_GROUP);
 }
 
 function getRandomCoords(min, max) {
@@ -105,24 +107,29 @@ function getRandomCoords(min, max) {
 }
 
 function addElement() {
+  // Create a new 3D object for each element
   let newGroup = new THREE.Object3D();
 
-  let randomGeometryIndex = Math.floor(Math.random() * geometryOptions.length);
-
-  let geometry = geometryOptions[randomGeometryIndex];
+  // Create random geometry
+  let randomGeometryIndex = Math.floor(Math.random() * GEOMETRY_OPTIONS.length);
+  let geometry = GEOMETRY_OPTIONS[randomGeometryIndex];
 
   // And put the geometry and material together into a mesh
-  let mesh = new THREE.Mesh(geometry, material);
+  let mesh = new THREE.Mesh(geometry, MATERIAL);
 
   // Tilt the mesh toward the viewer
   mesh.rotation.x = Math.PI / 5;
   mesh.rotation.y = Math.PI / 5;
 
-  // Add the cube mesh to our group
+  // Add the cube mesh to our group and to the array of meshes
   newGroup.add(mesh);
   meshes.push(mesh);
   newGroup.updateMatrixWorld();
-  generalGroup.add(newGroup);
+
+  // Add the group to the general group
+  GENERAL_GROUP.add(newGroup);
+
+  // Set the position of the group
   newGroup.position.set(
     getRandomCoords(-4, 3),
     getRandomCoords(-3, 3),
@@ -131,23 +138,27 @@ function addElement() {
   currentGroup = newGroup;
 }
 
-function addSatelite() {
-  let randomGeometryIndex = Math.floor(Math.random() * geometryOptions.length);
+function addSatellite() {
+  // Create random geometry
+  let randomGeometryIndex = Math.floor(Math.random() * GEOMETRY_OPTIONS.length);
+  let geometry = GEOMETRY_OPTIONS[randomGeometryIndex];
 
-  let geometry = geometryOptions[randomGeometryIndex];
-
-  // And put the geometry and material together into a mesh
-  let mesh = new THREE.Mesh(geometry, material);
+  // Put the geometry and material together into a mesh
+  let mesh = new THREE.Mesh(geometry, MATERIAL);
   mesh.position.set(1, 1, -0.667);
 
+  // Add the object to its "parent" group
   currentGroup.add(mesh);
+  // Add object to meshes array to animate it
   meshes.push(mesh);
-  satelites_groups.push(currentGroup);
+  // Add group to array of groups with satellites to animate
+  satellites_groups.push(currentGroup);
 }
 
 function resetCanvas() {
-  generalGroup.children = [];
+  // reset everything to beginning values
+  GENERAL_GROUP.children = [];
   currentGroup = null;
   meshes = [];
-  satelites_groups = [];
+  satellites_groups = [];
 }
