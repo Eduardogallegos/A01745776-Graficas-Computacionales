@@ -1,3 +1,27 @@
+class Planet{
+    constructor(radius, parentGroup, material, moons, position){
+        this.radius = radius;
+        this.parentGroup = parentGroup;
+        this.material = material
+        this.group = new THREE.Object3D();
+        this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.group.add(this.mesh);
+        this.group.updateMatrixWorld();
+        this.group.position.set(position.x, position.y, position.z);
+        this.parentGroup.add(this.group);
+    }
+    draw(){
+
+    }
+    createMoons(){
+
+    }
+    createMaterial(){
+        
+    }
+}
+
 // Global consts
 const DURATION = 5000, // ms
   TEXTURE_URL = "../images/ash_uvgrid01.jpg",
