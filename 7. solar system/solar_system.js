@@ -1,25 +1,89 @@
 class Planet{
-    constructor(radius, parentGroup, material, moons, position){
-        this.radius = radius;
-        this.parentGroup = parentGroup;
-        this.material = material
-        this.group = new THREE.Object3D();
-        this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
-        this.mesh = new THREE.Mesh(this.geometry, this.material);
-        this.group.add(this.mesh);
-        this.group.updateMatrixWorld();
-        this.group.position.set(position.x, position.y, position.z);
-        this.parentGroup.add(this.group);
-    }
-    draw(){
+  constructor(radius, mapUrl, moons_number, position){
+    this.radius = radius;
+    this.parentGroup = GENERAL_GROUP;
+    this.material = this.createMaterial(mapUrl);
+    this.rotationGroup = new THREE.Object3D();
+    this.moonsGroup = new THREE.Object3D();
+    this.position = position;
 
+    this.draw();
+    for (let i = 0; i < moons_number; i++) {
+      this.createMoon();
     }
-    createMoons(){
+    
+  }
 
+  draw(){
+    this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.rotationGroup.add(this.mesh);
+    this.rotationGroup.updateMatrixWorld();
+    this.rotationGroup.position.set(this.position.x, this.position.y, this.position.z);
+    this.moonsGroup.add(this.mesh)
+    this.parentGroup.add(this.rotationGroup);
+    this.rotationGroup.add(this.moonsGroup);
+  }
+
+  createMoon(){
+    let moonGeometry = new THREE.SphereGeometry( 2, 32, 32 ),
+    moonMaterial = this.createMaterial("../images/solar_system/moon/moonbump2k.jpg"),
+    moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
+    moonMesh.position.set(this.getRandomCoords(8,20),this.getRandomCoords(-5,5),this.getRandomCoords(8,20))
+    this.moonsGroup.add(moonMesh)
+  }
+
+  getRandomCoords = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+  
+
+  createMaterial = (url) => new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load(url) });
+
+  animate(angle){
+    this.mesh.rotation.y += angle;
+    this.moonsGroup.rotation.y -= angle/3;
+  }
+}
+
+class Sun{
+  constructor(radius, mapUrl, position){
+    this.radius = radius;
+    this.parentGroup = GENERAL_GROUP;
+    this.material = this.createMaterial(mapUrl);
+    this.rotationGroup = new THREE.Object3D();
+    this.moonsGroup = new THREE.Object3D();
+    this.position = position;
+
+    this.draw();
+    for (let i = 0; i < moons_number; i++) {
+      this.createMoon();
     }
-    createMaterial(){
-        
-    }
+    
+  }
+
+  draw(){
+    this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.rotationGroup.add(this.mesh);
+    this.rotationGroup.updateMatrixWorld();
+    this.rotationGroup.position.set(this.position.x, this.position.y, this.position.z);
+    this.parentGroup.add(this.rotationGroup);
+  }
+
+  createMoon(){
+    this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
+  }
+
+  createMaterial = (url) => new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load(url) });
+
+  animate(){
+    let now = Date.now();
+    let deltat = now - currentTime;
+    currentTime = now;
+    let fract = deltat / DURATION;
+    let angle = Math.PI * 2 * fract;
+
+    this.mesh.rotation.y += angle;
+  }
 }
 
 // Global consts
@@ -42,9 +106,7 @@ let renderer = null,
   camera = null,
   controls = null,
   currentTime = Date.now(),
-  currentGroup = null,
-  meshes = [],
-  satellites_groups = [];
+  planets = [];
 
 function main() {
   const canvas = document.getElementById("webglcanvas");
@@ -57,22 +119,20 @@ function main() {
 }
 
 function animate() {
-  // Calculate the angle of movement
   let now = Date.now();
   let deltat = now - currentTime;
   currentTime = now;
   let fract = deltat / DURATION;
   let angle = Math.PI * 2 * fract;
-
   // Rotate every object
-  meshes.forEach((mesh) => {
-    mesh.rotation.y += angle;
+  planets.forEach((planet) => {
+    planet.animate(angle);
   });
 
   // Rotate every group that holds a satellite
-  satellites_groups.forEach((satellite_group) => {
-    satellite_group.rotation.y -= angle / 2;
-  });
+  // satellites_groups.forEach((satellite_group) => {
+  //   satellite_group.rotation.y -= angle / 2;
+  // });
 }
 
 function run() {
@@ -99,7 +159,7 @@ function createScene(canvas) {
   scene = new THREE.Scene();
 
   // Set the background color
-  scene.background = new THREE.Color(0.2, 0.2, 0.2);
+  // scene.background = new THREE.Color(0.2, 0.2, 0.2);
 
   // Add  a camera so we can view the scene
   camera = new THREE.PerspectiveCamera(
@@ -110,8 +170,16 @@ function createScene(canvas) {
   );
   camera.position.z = 10;
   scene.add(camera);
-  controls = new THREE.OrbitControls (camera, renderer.domElement);
-  scene.add(controls);
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+  controls.dampingFactor = 0.05;
+
+  controls.screenSpacePanning = false;
+
+  controls.minDistance = 100;
+  controls.maxDistance = 500;
+
+  controls.maxPolarAngle = Math.PI / 2;
 
   // Add a directional light to show off the objects
   let light = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -128,65 +196,37 @@ function createScene(canvas) {
 
   // Now add the group to our scene
   scene.add(GENERAL_GROUP);
-}
 
-function getRandomCoords(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+  // Crear Sol
+  let sunMapUrl = "../images/solar_system/sun/sun.jpg",
+  mercuryMapUrl = "../images/solar_system/mercury/mercurymap.jpg",
+  venusMapUrl = "../images/solar_system/venus/venusmap.jpg",
+  earthMapUrl = "../images/solar_system/earth/earthmap1k.jpg",
+  marsMapUrl = "../images/solar_system/mars/mars_1k_color.jpg",
+  jupiterMapUrl = "../images/solar_system/jupiter/jupitermap.jpg",
+  saturnMapUrl = "../images/solar_system/saturn/saturnmap.jpg",
+  uranusMapUrl = "../images/solar_system/uranus/uranusmap.jpg",
+  neptuneMapUrl = "../images/solar_system/neptune/neptunemap.jpg",
+  plutoMapUrl = "../images/solar_system/pluto/plutomap2k.jpg";
 
-function addElement() {
-  // Create a new 3D object for each element
-  let newGroup = new THREE.Object3D();
-
-  // Create random geometry
-  let randomGeometryIndex = Math.floor(Math.random() * GEOMETRY_OPTIONS.length);
-  let geometry = GEOMETRY_OPTIONS[randomGeometryIndex];
-
-  // And put the geometry and material together into a mesh
-  let mesh = new THREE.Mesh(geometry, MATERIAL);
-
-  // Tilt the mesh toward the viewer
-  mesh.rotation.x = Math.PI / 5;
-  mesh.rotation.y = Math.PI / 5;
-
-  // Add the cube mesh to our group and to the array of meshes
-  newGroup.add(mesh);
-  meshes.push(mesh);
-  newGroup.updateMatrixWorld();
-
-  // Add the group to the general group
-  GENERAL_GROUP.add(newGroup);
-
-  // Set the position of the group
-  newGroup.position.set(
-    getRandomCoords(-4, 3),
-    getRandomCoords(-3, 3),
-    getRandomCoords(-15, 0)
-  );
-  currentGroup = newGroup;
-}
-
-function addSatellite() {
-  // Create random geometry
-  let randomGeometryIndex = Math.floor(Math.random() * GEOMETRY_OPTIONS.length);
-  let geometry = GEOMETRY_OPTIONS[randomGeometryIndex];
-
-  // Put the geometry and material together into a mesh
-  let mesh = new THREE.Mesh(geometry, MATERIAL);
-  mesh.position.set(1, 1, -0.667);
-
-  // Add the object to its "parent" group
-  currentGroup.add(mesh);
-  // Add object to meshes array to animate it
-  meshes.push(mesh);
-  // Add group to array of groups with satellites to animate
-  satellites_groups.push(currentGroup);
-}
-
-function resetCanvas() {
-  // reset everything to beginning values
-  GENERAL_GROUP.children = [];
-  currentGroup = null;
-  meshes = [];
-  satellites_groups = [];
+  const sun = new Planet(30, sunMapUrl, 0, {x:0, y:0, z:0})
+  planets.push(sun)
+  const mercury = new Planet(5, mercuryMapUrl, 0, {x:30, y:-1, z:1})
+  planets.push(mercury)
+  const venus = new Planet(6, venusMapUrl, 0, {x:40, y:2, z:2})
+  planets.push(venus)
+  const earth = new Planet(9, earthMapUrl, 1, {x:55, y:0, z:3})
+  planets.push(earth)
+  const mars = new Planet(8, marsMapUrl, 0, {x:70, y:0, z:3})
+  planets.push(mars)
+  const jupiter = new Planet(17, jupiterMapUrl, 5, {x:110, y:0, z:3})
+  planets.push(jupiter)
+  const saturn = new Planet(12, saturnMapUrl, 0, {x:140, y:0, z:3})
+  planets.push(saturn)
+  const uranus = new Planet(10, uranusMapUrl, 0, {x:160, y:0, z:3})
+  planets.push(uranus)
+  const neptune = new Planet(11, neptuneMapUrl, 0, {x:175, y:0, z:3})
+  planets.push(neptune)
+  const pluto = new Planet(5, plutoMapUrl, 0, {x:200, y:0, z:3})
+  planets.push(pluto)
 }
