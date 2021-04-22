@@ -31,8 +31,8 @@ class Planet{
     GENERAL_GROUP.add(orbitMesh)
   }
 
-  createMoons(moons){
-    let moonGeometry = new THREE.SphereGeometry( 2, 32, 32 ),
+  createMoons(moons, moonRadius){
+    let moonGeometry = new THREE.SphereGeometry( moonRadius, 32, 32 ),
     moonMaterial = this.createMaterial("../images/solar_system/moon/moonbump2k.jpg"),
     moonPositionOptions = [{x:8,y:5,z:8},{x:-8,y:-4,z:-8},{x:8,y:3,z:-8},{x:-8,y:1,z:8},{x:9,y:-5,z:-6}],
     posFactor = this.radius/10;
@@ -240,13 +240,13 @@ function createScene(canvas) {
   const venus = new Planet(6, venusMapUrl, 55)
   planets.push(venus)
   const earth = new Planet(10, earthMapUrl, 78) // 1
-  earth.createMoons(1);
+  earth.createMoons(1, 3);
   planets.push(earth)
   const mars = new Planet(8, marsMapUrl, 105)
   planets.push(mars)
   createAsteroids();
   const jupiter = new Planet(17, jupiterMapUrl, 150) // 5
-  jupiter.createMoons(5)
+  jupiter.createMoons(5, 2)
   planets.push(jupiter)
   const saturn = new Planet(12, saturnMapUrl, 190)
   saturn.addRing();
