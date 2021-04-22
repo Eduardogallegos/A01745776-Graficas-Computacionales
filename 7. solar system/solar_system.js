@@ -11,7 +11,6 @@ class Planet{
     for (let i = 0; i < moons_number; i++) {
       this.createMoon(i);
     }
-    
   }
 
   draw(){
@@ -44,6 +43,14 @@ class Planet{
   }  
 
   createMaterial = (url) => new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load(url) });
+
+  addRing(){
+    let ringGeometry = new THREE.TorusGeometry( this.radius + 5, 3, 16, 100 );
+    ringGeometry.rotateX(Math.PI/2)
+    let ringMaterial = new THREE.MeshBasicMaterial( { color: 0x420420 } );
+    let ring = new THREE.Mesh( ringGeometry, ringMaterial );
+    this.moonsGroup.add(ring)
+  }
 
   animate(angle){
     this.mesh.rotation.y += angle;
@@ -185,6 +192,7 @@ function createScene(canvas) {
   const jupiter = new Planet(17, jupiterMapUrl, 5, {x:150, y:0, z:3})
   planets.push(jupiter)
   const saturn = new Planet(12, saturnMapUrl, 0, {x:190, y:0, z:3})
+  saturn.addRing();
   planets.push(saturn)
   const uranus = new Planet(10, uranusMapUrl, 0, {x:218, y:0, z:3})
   planets.push(uranus)
