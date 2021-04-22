@@ -6,10 +6,10 @@ class Planet{
     this.rotationGroup = new THREE.Object3D();
     this.moonsGroup = new THREE.Object3D();
     this.position = position;
-
+    this.drawOrbit();
     this.draw();
     for (let i = 0; i < moons_number; i++) {
-      this.createMoon();
+      this.createMoon(i);
     }
     
   }
@@ -25,64 +25,28 @@ class Planet{
     this.rotationGroup.add(this.moonsGroup);
   }
 
-  createMoon(){
-    let moonGeometry = new THREE.SphereGeometry( 2, 32, 32 ),
-    moonMaterial = this.createMaterial("../images/solar_system/moon/moonbump2k.jpg"),
-    moonMesh = new THREE.Mesh(moonGeometry, moonMaterial);
-    moonMesh.position.set(this.getRandomCoords(8,20),this.getRandomCoords(-5,5),this.getRandomCoords(8,20))
-    this.moonsGroup.add(moonMesh)
+  drawOrbit(){
+    this.orbit = new THREE.RingGeometry( this.position.x - 1, this.position.x + 1, 32 );
+    let orbitMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00, side: THREE.DoubleSide } )
+    let orbitMesh = new THREE.Mesh( this.orbit, orbitMaterial );
+    GENERAL_GROUP.add(orbitMesh)
   }
 
-  getRandomCoords = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-  
+  createMoon(index){
+    let moonGeometry = new THREE.SphereGeometry( 2, 32, 32 ),
+    moonMaterial = this.createMaterial("../images/solar_system/moon/moonbump2k.jpg"),
+    moonMesh = new THREE.Mesh(moonGeometry, moonMaterial),
+    moonPositionOptions = [{x:8,y:5,z:8},{x:-8,y:-4,z:-8},{x:8,y:3,z:-8},{x:-8,y:1,z:8},{x:9,y:-5,z:-6}],
+    posFactor = this.radius/10;
+    moonMesh.position.set(moonPositionOptions[index].x * posFactor,moonPositionOptions[index].y* posFactor,moonPositionOptions[index].z* posFactor)
+    this.moonsGroup.add(moonMesh)
+  }  
 
   createMaterial = (url) => new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load(url) });
 
   animate(angle){
     this.mesh.rotation.y += angle;
     this.moonsGroup.rotation.y -= angle/3;
-  }
-}
-
-class Sun{
-  constructor(radius, mapUrl, position){
-    this.radius = radius;
-    this.parentGroup = GENERAL_GROUP;
-    this.material = this.createMaterial(mapUrl);
-    this.rotationGroup = new THREE.Object3D();
-    this.moonsGroup = new THREE.Object3D();
-    this.position = position;
-
-    this.draw();
-    for (let i = 0; i < moons_number; i++) {
-      this.createMoon();
-    }
-    
-  }
-
-  draw(){
-    this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
-    this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.rotationGroup.add(this.mesh);
-    this.rotationGroup.updateMatrixWorld();
-    this.rotationGroup.position.set(this.position.x, this.position.y, this.position.z);
-    this.parentGroup.add(this.rotationGroup);
-  }
-
-  createMoon(){
-    this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
-  }
-
-  createMaterial = (url) => new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load(url) });
-
-  animate(){
-    let now = Date.now();
-    let deltat = now - currentTime;
-    currentTime = now;
-    let fract = deltat / DURATION;
-    let angle = Math.PI * 2 * fract;
-
-    this.mesh.rotation.y += angle;
   }
 }
 
@@ -128,11 +92,9 @@ function animate() {
   planets.forEach((planet) => {
     planet.animate(angle);
   });
+  let angleFactor = Math.random()
 
-  // Rotate every group that holds a satellite
-  // satellites_groups.forEach((satellite_group) => {
-  //   satellite_group.rotation.y -= angle / 2;
-  // });
+  // GENERAL_GROUP.rotation.y += angle * angleFactor;
 }
 
 function run() {
@@ -211,22 +173,22 @@ function createScene(canvas) {
 
   const sun = new Planet(30, sunMapUrl, 0, {x:0, y:0, z:0})
   planets.push(sun)
-  const mercury = new Planet(5, mercuryMapUrl, 0, {x:30, y:-1, z:1})
+  const mercury = new Planet(5, mercuryMapUrl, 0, {x:40, y:-1, z:1})
   planets.push(mercury)
-  const venus = new Planet(6, venusMapUrl, 0, {x:40, y:2, z:2})
+  const venus = new Planet(6, venusMapUrl, 0, {x:55, y:2, z:2})
   planets.push(venus)
-  const earth = new Planet(9, earthMapUrl, 1, {x:55, y:0, z:3})
+  const earth = new Planet(10, earthMapUrl, 1, {x:78, y:0, z:3})
   planets.push(earth)
-  const mars = new Planet(8, marsMapUrl, 0, {x:70, y:0, z:3})
+  const mars = new Planet(8, marsMapUrl, 0, {x:105, y:0, z:3})
   planets.push(mars)
-  const jupiter = new Planet(17, jupiterMapUrl, 5, {x:110, y:0, z:3})
+  const jupiter = new Planet(17, jupiterMapUrl, 5, {x:150, y:0, z:3})
   planets.push(jupiter)
-  const saturn = new Planet(12, saturnMapUrl, 0, {x:140, y:0, z:3})
+  const saturn = new Planet(12, saturnMapUrl, 0, {x:190, y:0, z:3})
   planets.push(saturn)
-  const uranus = new Planet(10, uranusMapUrl, 0, {x:160, y:0, z:3})
+  const uranus = new Planet(10, uranusMapUrl, 0, {x:218, y:0, z:3})
   planets.push(uranus)
-  const neptune = new Planet(11, neptuneMapUrl, 0, {x:175, y:0, z:3})
+  const neptune = new Planet(11, neptuneMapUrl, 0, {x:245, y:0, z:3})
   planets.push(neptune)
-  const pluto = new Planet(5, plutoMapUrl, 0, {x:200, y:0, z:3})
+  const pluto = new Planet(5, plutoMapUrl, 0, {x:270, y:0, z:3})
   planets.push(pluto)
 }
