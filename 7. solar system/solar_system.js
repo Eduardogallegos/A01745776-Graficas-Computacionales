@@ -1,11 +1,13 @@
 class Planet{
-  constructor(radius, mapUrl, moons_number, position){
+  constructor(radius, mapUrl, moons_number, orbitRadius){
     this.radius = radius;
     this.parentGroup = GENERAL_GROUP;
     this.material = this.createMaterial(mapUrl);
     this.rotationGroup = new THREE.Object3D();
     this.moonsGroup = new THREE.Object3D();
-    this.position = position;
+    this.orbitRadius = orbitRadius;
+    this.position = this.calculatePosition();
+    console.log(this.position)
     this.drawOrbit();
     this.draw();
     for (let i = 0; i < moons_number; i++) {
@@ -25,7 +27,7 @@ class Planet{
   }
 
   drawOrbit(){
-    this.orbit = new THREE.RingGeometry( this.position.x - 1, this.position.x + 1, 45 );
+    this.orbit = new THREE.RingGeometry( this.orbitRadius - 1, this.orbitRadius + 1, 45 );
     this.orbit.rotateX(Math.PI/2);
     let orbitMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } )
     let orbitMesh = new THREE.Mesh( this.orbit, orbitMaterial );
@@ -44,6 +46,22 @@ class Planet{
 
   createMaterial = (url) => new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load(url) });
 
+  getRandomCoords = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  calculatePosition = () => {
+    let x = this.getRandomCoords(-this.orbitRadius, this.orbitRadius),
+    y = this.getRandomCoords(-2,2),
+    pos = Math.floor(Math.random()*2),
+    coeficiente = Math.pow(this.orbitRadius,2) - Math.pow(x,2),
+    z = undefined;
+    if(pos === 1){
+      z = Math.sqrt(coeficiente)
+    }else{
+      z = -Math.sqrt(coeficiente)
+    }
+    return {x:x,y:y,z:z};
+  }
+
   addRing(){
     let ringGeometry = new THREE.TorusGeometry( this.radius + 5, 3, 16, 100 );
     ringGeometry.rotateX(Math.PI/2)
@@ -59,11 +77,13 @@ class Planet{
 }
 
 class Asteroid{
-  constructor(radius){
+  constructor(radius, orbitRadius){
     this.radius = radius;
-    this.parentGroup = GENERAL_GROUP;
+    this.parentGroup = ASTEROID_GROUP;
     this.material = this.createMaterial("../images/solar_system/asteroid/asteroid.jpg");
     this.rotationGroup = new THREE.Object3D();
+    this.orbitRadius = orbitRadius;
+    this.position = this.calculatePosition();
     this.draw();
   }
 
@@ -72,7 +92,7 @@ class Asteroid{
     this.mesh = new THREE.Mesh(this.geometry, this.material);
     this.rotationGroup.add(this.mesh);
     this.rotationGroup.updateMatrixWorld();
-    this.rotationGroup.position.set(this.getRandomCoords(105,150), this.getRandomCoords(-1,1), this.getRandomCoords(3,5));
+    this.rotationGroup.position.set(this.position.x, this.position.y, this.position.z);
     this.rotationGroup.add(this.mesh)
     this.parentGroup.add(this.rotationGroup);
   }
@@ -80,11 +100,26 @@ class Asteroid{
   createMaterial = (url) => new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load(url) });
 
   getRandomCoords = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+  calculatePosition = () => {
+    let x = this.getRandomCoords(-this.orbitRadius, this.orbitRadius),
+    y = this.getRandomCoords(-2,2),
+    pos = Math.floor(Math.random()*2),
+    coeficiente = Math.pow(this.orbitRadius,2) - Math.pow(x,2),
+    z = undefined;
+    if(pos === 1){
+      z = Math.sqrt(coeficiente)
+    }else{
+      z = -Math.sqrt(coeficiente)
+    }
+    return {x:x,y:y,z:z};
+  }
 }
 
 // Global consts
 const DURATION = 5000, // ms
-  GENERAL_GROUP = new THREE.Object3D()
+  GENERAL_GROUP = new THREE.Object3D(),
+  ASTEROID_GROUP = new THREE.Object3D()
   
 
 // Global vars
@@ -194,32 +229,39 @@ function createScene(canvas) {
   neptuneMapUrl = "../images/solar_system/neptune/neptunemap.jpg",
   plutoMapUrl = "../images/solar_system/pluto/plutomap2k.jpg";
 
-  const sun = new Planet(30, sunMapUrl, 0, {x:0, y:0, z:0})
+  const sun = new Planet(30, sunMapUrl, 0, 0)
   planets.push(sun)
-  const mercury = new Planet(5, mercuryMapUrl, 0, {x:40, y:-1, z:1})
+  const mercury = new Planet(5, mercuryMapUrl, 0, 40)
   planets.push(mercury)
-  const venus = new Planet(6, venusMapUrl, 0, {x:55, y:2, z:2})
+  const venus = new Planet(6, venusMapUrl, 0, 55)
   planets.push(venus)
-  const earth = new Planet(10, earthMapUrl, 1, {x:78, y:0, z:3})
+  const earth = new Planet(10, earthMapUrl, 1, 78)
   planets.push(earth)
-  const mars = new Planet(8, marsMapUrl, 0, {x:105, y:0, z:3})
+  const mars = new Planet(8, marsMapUrl, 0, 105)
   planets.push(mars)
   createAsteroids();
-  const jupiter = new Planet(17, jupiterMapUrl, 5, {x:150, y:0, z:3})
+  const jupiter = new Planet(17, jupiterMapUrl, 5, 150)
   planets.push(jupiter)
-  const saturn = new Planet(12, saturnMapUrl, 0, {x:190, y:0, z:3})
+  const saturn = new Planet(12, saturnMapUrl, 0, 190)
   saturn.addRing();
   planets.push(saturn)
-  const uranus = new Planet(10, uranusMapUrl, 0, {x:218, y:0, z:3})
+  const uranus = new Planet(10, uranusMapUrl, 0, 218)
   planets.push(uranus)
-  const neptune = new Planet(11, neptuneMapUrl, 0, {x:245, y:0, z:3})
+  const neptune = new Planet(11, neptuneMapUrl, 0, 245)
   planets.push(neptune)
-  const pluto = new Planet(5, plutoMapUrl, 0, {x:270, y:0, z:3})
+  const pluto = new Planet(5, plutoMapUrl, 0, 270)
   planets.push(pluto)
 }
 
 function createAsteroids(){
   for (let j = 0; j < 50; j++) {
-    new Asteroid(Math.random());
+    new Asteroid(2, 115);
+    new Asteroid(2, 130);
+    let orbit = new THREE.RingGeometry( 119, 121, 45 );
+    orbit.rotateX(Math.PI/2);
+    let orbitMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } )
+    let orbitMesh = new THREE.Mesh( orbit, orbitMaterial );
+    GENERAL_GROUP.add(ASTEROID_GROUP);
+    GENERAL_GROUP.add(orbitMesh)
   }
 }
