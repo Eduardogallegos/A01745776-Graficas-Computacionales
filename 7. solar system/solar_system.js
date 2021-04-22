@@ -26,8 +26,9 @@ class Planet{
   }
 
   drawOrbit(){
-    this.orbit = new THREE.RingGeometry( this.position.x - 1, this.position.x + 1, 32 );
-    let orbitMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00, side: THREE.DoubleSide } )
+    this.orbit = new THREE.RingGeometry( this.position.x - 1, this.position.x + 1, 45 );
+    this.orbit.rotateX(Math.PI/2);
+    let orbitMaterial = new THREE.MeshBasicMaterial( { color: 0xffffff, side: THREE.DoubleSide } )
     let orbitMesh = new THREE.Mesh( this.orbit, orbitMaterial );
     GENERAL_GROUP.add(orbitMesh)
   }
@@ -130,7 +131,7 @@ function createScene(canvas) {
     1,
     4000
   );
-  camera.position.z = 10;
+  camera.position.z = 40;
   scene.add(camera);
   controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
@@ -138,10 +139,10 @@ function createScene(canvas) {
 
   controls.screenSpacePanning = false;
 
-  controls.minDistance = 100;
-  controls.maxDistance = 500;
+  controls.minDistance =200;
+  controls.maxDistance = 700;
 
-  controls.maxPolarAngle = Math.PI / 2;
+  controls.maxPolarAngle = Math.PI ;
 
   // Add a directional light to show off the objects
   let light = new THREE.DirectionalLight(0xffffff, 1.0);
