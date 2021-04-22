@@ -15,12 +15,11 @@ class Planet{
   draw(){
     this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
     this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.rotationGroup.add(this.mesh);
     this.rotationGroup.updateMatrixWorld();
-    this.rotationGroup.position.set(this.position.x, this.position.y, this.position.z);
-    this.moonsGroup.add(this.mesh)
-    this.parentGroup.add(this.rotationGroup);
+    this.moonsGroup.position.set(this.position.x, this.position.y, this.position.z);
+    this.moonsGroup.add(this.mesh)    
     this.rotationGroup.add(this.moonsGroup);
+    this.parentGroup.add(this.rotationGroup);
   }
 
   drawOrbit(){
@@ -94,7 +93,6 @@ class Asteroid{
   draw(){
     this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
     this.mesh = new THREE.Mesh(this.geometry, this.material);
-    this.rotationGroup.add(this.mesh);
     this.rotationGroup.updateMatrixWorld();
     this.rotationGroup.position.set(this.position.x, this.position.y, this.position.z);
     this.rotationGroup.add(this.mesh)
@@ -154,9 +152,17 @@ function animate() {
   planets.forEach((planet) => {
     planet.animate(angle);
   });
-  let angleFactor = Math.random()
+  let rotationGroups = GENERAL_GROUP.children,
+  slowing_rate = 1,
+  rotationGroups2 = rotationGroups.filter(checkObjects);
+  rotationGroups2.forEach(group => {
+    group.rotation.y += angle / slowing_rate
+    slowing_rate += 2
+  });
+}
 
-  // GENERAL_GROUP.rotation.y += angle * angleFactor;
+function checkObjects(obj){
+  return obj.type === "Object3D"
 }
 
 function run() {
@@ -234,7 +240,7 @@ function createScene(canvas) {
   plutoMapUrl = "../images/solar_system/pluto/plutomap2k.jpg";
 
   const sun = new Planet(30, sunMapUrl, 0)
-  planets.push(sun)
+  
   const mercury = new Planet(5, mercuryMapUrl, 40)
   planets.push(mercury)
   const venus = new Planet(6, venusMapUrl, 55)
