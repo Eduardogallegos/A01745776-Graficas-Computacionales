@@ -58,19 +58,34 @@ class Planet{
   }
 }
 
+class Asteroid{
+  constructor(radius){
+    this.radius = radius;
+    this.parentGroup = GENERAL_GROUP;
+    this.material = this.createMaterial("../images/solar_system/asteroid/asteroid.jpg");
+    this.rotationGroup = new THREE.Object3D();
+    this.draw();
+  }
+
+  draw(){
+    this.geometry = new THREE.SphereGeometry( this.radius, 32, 32 );
+    this.mesh = new THREE.Mesh(this.geometry, this.material);
+    this.rotationGroup.add(this.mesh);
+    this.rotationGroup.updateMatrixWorld();
+    this.rotationGroup.position.set(this.getRandomCoords(105,150), this.getRandomCoords(-1,1), this.getRandomCoords(3,5));
+    this.rotationGroup.add(this.mesh)
+    this.parentGroup.add(this.rotationGroup);
+  }
+
+  createMaterial = (url) => new THREE.MeshPhongMaterial({ map: new THREE.TextureLoader().load(url) });
+
+  getRandomCoords = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // Global consts
 const DURATION = 5000, // ms
-  TEXTURE_URL = "../images/ash_uvgrid01.jpg",
-  TEXTURE = new THREE.TextureLoader().load(TEXTURE_URL),
-  MATERIAL = new THREE.MeshPhongMaterial({ map: TEXTURE }),
-  GENERAL_GROUP = new THREE.Object3D(),
-  GEOMETRY_OPTIONS = [
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.SphereGeometry(1, 20, 20),
-    new THREE.TorusGeometry(1, 0.5, 16, 50),
-    new THREE.TorusKnotGeometry(0.5, 0.125, 100, 16),
-    new THREE.CylinderGeometry(0, 0.333, 0.444, 20, 20),
-  ];
+  GENERAL_GROUP = new THREE.Object3D()
+  
 
 // Global vars
 let renderer = null,
@@ -189,6 +204,7 @@ function createScene(canvas) {
   planets.push(earth)
   const mars = new Planet(8, marsMapUrl, 0, {x:105, y:0, z:3})
   planets.push(mars)
+  createAsteroids();
   const jupiter = new Planet(17, jupiterMapUrl, 5, {x:150, y:0, z:3})
   planets.push(jupiter)
   const saturn = new Planet(12, saturnMapUrl, 0, {x:190, y:0, z:3})
@@ -200,4 +216,10 @@ function createScene(canvas) {
   planets.push(neptune)
   const pluto = new Planet(5, plutoMapUrl, 0, {x:270, y:0, z:3})
   planets.push(pluto)
+}
+
+function createAsteroids(){
+  for (let j = 0; j < 50; j++) {
+    new Asteroid(Math.random());
+  }
 }
