@@ -101,7 +101,7 @@ function createScene(canvas)
     let rootGroup = new THREE.Object3D;
         
     spotLight = new THREE.SpotLight (0xffffff, 1.5);
-    spotLight.position.set(0, 40, 50);
+    spotLight.position.set(0, 40, -50);
     spotLight.target.position.set(-2, 0, -2);
     rootGroup.add(spotLight);
 
