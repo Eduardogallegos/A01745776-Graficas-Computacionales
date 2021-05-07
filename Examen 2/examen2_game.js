@@ -1,6 +1,6 @@
 import * as THREE from './libs/three.module.js'
 
-let renderer = null, scene = null, camera = null, root = null;
+let renderer = null, scene = null, camera = null, root = null, cubes_group = null;
 
 let raycaster = null, mouse = new THREE.Vector2(), intersected, clicked;
 
@@ -9,7 +9,7 @@ let directionalLight = null, spotLight = null, ambientLight = null;
 let cubes = [];
 let score = 0;
 
-const mapUrl = "../../images/checker_large.gif";
+const mapUrl = "./images/checker_large.gif";
 let currentTime = Date.now();
 
 function animate()
@@ -17,6 +17,15 @@ function animate()
     const now = Date.now();
     const deltat = now - currentTime;
     currentTime = now;
+    for(const cube of cubes){
+        cube.position.z += 0.03 * deltat;
+
+        if(cube.position.z > 125){
+            cubes.splice(cubes.indexOf(cube), 1);
+            score -= 1;
+            cubes_group.children = cubes;
+        }
+    }
 }
 
 function update() 
@@ -24,6 +33,8 @@ function update()
     requestAnimationFrame(function() { update(); });
     renderer.render( scene, camera );
     animate();
+    let output = document.getElementById("scoreText");
+    output.innerHTML = "Score: " + score;
 }
 
 function createScene(canvas) 
@@ -39,6 +50,7 @@ function createScene(canvas)
     scene.add(camera);
     
     root = new THREE.Object3D;
+    cubes_group = new THREE.Object3D;
     
     directionalLight = new THREE.DirectionalLight( 0xaaaaaa, 1);
     directionalLight.position.set(0, 5, 100);
@@ -69,6 +81,7 @@ function createScene(canvas)
     document.addEventListener('pointerdown', onDocumentPointerDown);
 
     scene.add( root );
+    scene.add( cubes_group );
 }
 
 function onDocumentPointerMove( event ) 
@@ -78,7 +91,7 @@ function onDocumentPointerMove( event )
 
     raycaster.setFromCamera( mouse, camera );
 
-    const intersects = raycaster.intersectObjects( scene.children );
+    const intersects = raycaster.intersectObjects( cubes_group.children );
 
     if ( intersects.length > 0 ) 
     {
@@ -109,12 +122,31 @@ function onDocumentPointerDown(event)
 
     raycaster.setFromCamera( mouse, camera );
 
-    let intersects = raycaster.intersectObjects( scene.children );
+    let intersects = raycaster.intersectObjects( cubes_group.children );
 
     if ( intersects.length > 0 ) 
     {
         clicked = intersects[ 0 ].object;
-    } 
+        cubes.splice(cubes.indexOf(clicked), 1);
+        cubes_group.children = cubes;
+        score += 1;
+    }
+}
+
+function getRandomCoords(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+function addBoxes()
+{
+    const geometry = new THREE.BoxGeometry( 5, 5, 5 );
+    
+    let object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
+    
+    object.position.set(getRandomCoords(-40, 40), getRandomCoords(0, 40) , -80);
+        
+    cubes_group.add( object );
+    cubes.push(object)
 }
 
 function main()
@@ -122,6 +154,7 @@ function main()
     const canvas = document.getElementById("webglcanvas");
 
     createScene(canvas);
+    setInterval(addBoxes, 1000);
 
     update();
 }
